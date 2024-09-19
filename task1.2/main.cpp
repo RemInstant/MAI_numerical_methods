@@ -8,20 +8,35 @@ void enter_coefs(
         size_t from,
         size_t to)
 {
-    std::cout << "Enter coefficients from " << identifier << (from + 1) << " to " << identifier << (to + 1) << ": ";
-    
     for (size_t i = from; i <= to; ++i)
     {
         std::cin >> coefs[i];
     }
 }
 
-// void print_system(std::vector<double> &a, std::vector<double> &b, std::vector<double> &c, std::vector<double> &d, )
-// {
-//     std::cout << std::setprecision(0);
-//     std::cout << b[0] << "x1"
+bool is_tridiagonal(
+        std::vector<double> const &coefs_a,
+        std::vector<double> const &coefs_b,
+        std::vector<double> const &coefs_c,
+        double eps)
+{
+    for (size_t i = 1; i < coefs_a.size(); ++i)
+    {
+        if (abs(coefs_a[i]) < eps) return false;
+    }
     
-// }
+    for (size_t i = 0; i < coefs_b.size(); ++i)
+    {
+        if (abs(coefs_b[i]) < eps) return false;
+    }
+    
+    for (size_t i = 0; i < coefs_c.size() - 1; ++i)
+    {
+        if (abs(coefs_c[i]) < eps) return false;
+    }
+    
+    return true;
+}
 
 bool check_stability(
         std::vector<double> const &coefs_a,
@@ -112,10 +127,11 @@ double calc_determinant(
 
 int main()
 {
+    std::freopen("input.txt", "r", stdin);
+    
     double const EPS = 1e-8;
     
     size_t n = 0;
-    std::cout << "Enter dimension: ";
     std::cin >> n;
     
     std::vector<double> coefs_a(n, 0), coefs_b(n, 0), coefs_c(n, 0), coefs_d(n, 0);
@@ -125,9 +141,17 @@ int main()
     enter_coefs(coefs_c, 'c', 0, n - 2);
     enter_coefs(coefs_d, 'd', 0, n - 1);
 
-    bool stability = check_stability(coefs_a, coefs_b, coefs_c);
+    if (is_tridiagonal(coefs_a, coefs_b, coefs_c, EPS))
+    {
+        std::cout << "The matrix is tridiagonal" << std::endl;
+    }
+    else
+    {
+        std::cout << "The matrix is not tridiagonal" << std::endl;
+        return 1;
+    }
     
-    if (stability)
+    if (check_stability(coefs_a, coefs_b, coefs_c))
     {
         std::cout << "The method is stable for the given system" << std::endl;
     }
