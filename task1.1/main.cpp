@@ -38,6 +38,7 @@ void process_gaussian_elimination_first_phase(
         double eps)
 {
     size_t n = augmented_matrix.size();
+    size_t m = augmented_matrix[0].size();
     size_t swap_count = 0;
     
     for (size_t i = 0; i < n; ++i)
@@ -56,7 +57,7 @@ void process_gaussian_elimination_first_phase(
         {
             double mult = augmented_matrix[j][i] / augmented_matrix[i][i];
             
-            for (size_t k = i; k < n+1; ++k)
+            for (size_t k = i; k < m; ++k)
             {
                 augmented_matrix[j][k] -= augmented_matrix[i][k] * mult;
             }
@@ -72,27 +73,61 @@ void process_gaussian_elimination_first_phase(
     }
 }
 
-std::vector<double>
+std::vector<std::vector<double>>
 process_gaussian_elimination_second_phase(
         std::vector<std::vector<double>> &augmented_matrix)
 {
     size_t n = augmented_matrix.size();
+    size_t m = augmented_matrix[0].size();
     
-    std::vector<double> roots(n);
+    std::vector<std::vector<double>> roots(n, std::vector<double>(m - n));
     
-    for (size_t i = n; i > 0; --i)
+    for (size_t k = 0; k < m - n; ++k)
     {
-        roots[i-1] = augmented_matrix[i-1][n];
-        
-        for (size_t j = i; j < n; ++j)
+        for (size_t i = n; i > 0; --i)
         {
-            roots[i-1] -= augmented_matrix[i-1][j] * roots[j];
+            roots[i-1][k] = augmented_matrix[i-1][n+k];
+            
+            for (size_t j = i; j < n; ++j)
+            {
+                roots[i-1][k] -= augmented_matrix[i-1][j] * roots[j][k];
+            }
+            
+            roots[i-1][k] /= augmented_matrix[i-1][i-1];
         }
         
-        roots[i-1] /= augmented_matrix[i-1][i-1];
     }
     
     return roots;
+}
+
+bool validate_solution(
+        std::vector<std::vector<double>> const &augmented_matrix,
+        std::vector<std::vector<double>> const &roots,
+        double eps)
+{
+    size_t n = augmented_matrix.size();
+    size_t m = augmented_matrix[0].size();
+    
+    for (size_t k = 0; k < m - n; ++k)
+    {
+        for (size_t i = 0; i < n; ++i)
+        {
+            double sum = 0;
+            
+            for (size_t j = 0; j < n; ++j)
+            {
+                sum += augmented_matrix[i][j] * roots[j][k];
+            }
+            
+            if (std::abs(sum - augmented_matrix[i][n+k]) > eps)
+            {
+                return false;
+            }
+        }
+    }
+    
+    return true;
 }
 
 double calc_determinant(
@@ -117,30 +152,21 @@ inverse_matrix(
     size_t n = matrix.size();
     
     std::vector<std::vector<double>> inv_matrix(n, std::vector<double>(n));
+    std::vector<std::vector<double>> augmented_matrix(n, std::vector<double>(2*n));
     
     for (size_t i = 0; i < n; ++i)
     {
-        std::vector<std::vector<double>> augmented_matrix(n, std::vector<double>(n+1));
         for (size_t j = 0; j < n; ++j)
         {
-            for (size_t k = 0; k < n; ++k)
-            {
-                augmented_matrix[j][k] = matrix[j][k];
-            }
-            
-            augmented_matrix[j][n] = i == j ? 1 : 0;
-        }
-        
-        process_gaussian_elimination_first_phase(augmented_matrix, eps);
-        auto roots = process_gaussian_elimination_second_phase(augmented_matrix);
-        
-        for (size_t j = 0; j < n; ++j)
-        {
-            inv_matrix[j][i] = roots[j];
+            augmented_matrix[i][j] = matrix[i][j];
+            augmented_matrix[i][n+j] = (i == j) ? 1 : 0;
         }
     }
     
-    return inv_matrix;
+    process_gaussian_elimination_first_phase(augmented_matrix, eps);
+    auto roots = process_gaussian_elimination_second_phase(augmented_matrix);
+    
+    return roots;
 }
 
 int main()
@@ -174,14 +200,23 @@ int main()
         
         for (size_t i = 0; i < n; ++i)
         {
-            std::cout << "x" << (i+1) << " = " << roots[i] << std::endl;
+            std::cout << "x" << (i+1) << " = " << roots[i][0] << std::endl;
         }
         
         std::cout << std::endl;
+        
+        if (validate_solution(augmented_matrix, roots, EPS))
+        {
+            std::cout << "Solution is verified" << std::endl << std::endl;
+        }
+        else
+        {
+            std::cout << "Solution is incorrect" << std::endl << std::endl;
+        }
     }
     catch (std::invalid_argument const &ex)
     {
-        std::cout << "Invalid equation system" << std::endl;
+        std::cout << "Inconsistent equation system" << std::endl;
         return 1;
     }
     
@@ -203,6 +238,7 @@ int main()
             std::cout << std::endl;
         }
         
+        std::cout << std::endl;
         // verifying inverse matrix
         for (size_t i = 0; i < n; ++i)
         {
@@ -215,7 +251,7 @@ int main()
                     prod_elem += matrix[i][k] * inv_matrix[k][j];
                 }
                 
-                //std::cout << prod_elem << ' ';
+                std::cout << std::setprecision(20) << prod_elem << ' ';
                 
                 if ((i == j && std::abs(prod_elem - 1) > EPS) ||
                         (i != j && std::abs(prod_elem) > EPS))
@@ -225,7 +261,7 @@ int main()
                 }
             }
             
-            //std::cout << std::endl;
+            std::cout << std::endl;
         }
         
         std::cout << std::endl << "The inverse matrix is verified" << std::endl;
