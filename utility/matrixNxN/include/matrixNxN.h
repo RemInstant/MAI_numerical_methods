@@ -11,6 +11,7 @@ private:
     std::vector<vecN> _data;
 
 public:
+    matrixNxN();
     matrixNxN(size_t dim);
     matrixNxN(size_t dim, double value);
 
@@ -18,7 +19,11 @@ public:
     static matrixNxN identical(size_t dim);
 
 public:
+    void print(std::ostream &stream, size_t precision);
+
+public:
     bool equals(matrixNxN const &other, double eps) const;
+    bool is_symmetric(double eps) const;
 
 public:
     matrixNxN &operator+=(matrixNxN const &other);
@@ -45,7 +50,8 @@ public:
     double l1_norm() const;
     double continuous_norm() const;
     
-    matrixNxN inverse() const;
+    matrixNxN inversed() const;
+    matrixNxN transposed() const;
 
 private:
     void throw_if_other_dim(vecN const &other) const;

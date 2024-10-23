@@ -1,8 +1,13 @@
 #include <stdexcept>
 #include <cmath>
 #include <limits>
+#include <iomanip>
 
 #include "../include/matrixNxN.h"
+
+matrixNxN::matrixNxN():
+    _data()
+{ }
 
 matrixNxN::matrixNxN(size_t dim):
     _data(std::vector<vecN>(dim, vecN(dim)))
@@ -24,6 +29,43 @@ matrixNxN matrixNxN::identical(size_t dim)
     return identical;
 }
 
+
+void matrixNxN::print(std::ostream &stream, size_t precision)
+{
+    std::vector<size_t> lens(_data.size(), 0);
+    
+    for (size_t i = 0; i < _data.size(); ++i)
+    {
+        for (size_t j = 0; j < _data.size(); ++j)
+        {
+            lens[j] = std::max(lens[j], std::to_string(_data[i][j]).find('.'));
+        }
+    }
+    
+    std::ios_base::fmtflags former_flags = stream.flags();
+    std::streamsize former_precision = stream.precision();
+    std::streamsize former_width = stream.width();
+    
+    stream.precision(precision);
+    stream.setf(std::ios_base::fixed);
+    
+    for (size_t i = 0; i < _data.size(); ++i)
+    {
+        for (size_t j = 0; j < _data.size(); ++j)
+        {
+            stream.width(lens[j] + precision + 2);
+            stream << _data[i][j];
+        }
+        
+        stream << std::endl;
+    }
+    
+    stream.setf(former_flags);
+    stream.precision(former_precision);
+    stream.width(former_width);
+}
+
+
 bool matrixNxN::equals(matrixNxN const &other, double eps) const
 {
     throw_if_other_dim(other);
@@ -33,6 +75,22 @@ bool matrixNxN::equals(matrixNxN const &other, double eps) const
         if (!_data[i].equals(other._data[i], eps))
         {
             return false;
+        }
+    }
+    
+    return true;
+}
+
+bool matrixNxN::is_symmetric(double eps) const
+{
+    for (size_t i = 1; i < _data.size(); ++i)
+    {
+        for (size_t j = 0; j < i; ++j)
+        {
+            if (std::abs(_data[i][j] - _data[j][i]) > eps)
+            {
+                return false;
+            }
         }
     }
     
@@ -230,7 +288,7 @@ double matrixNxN::continuous_norm() const
 }
 
 
-matrixNxN matrixNxN::inverse() const
+matrixNxN matrixNxN::inversed() const
 {
     matrixNxN coefs = *this;
     matrixNxN constant_terms = identical(_data.size());
@@ -298,6 +356,21 @@ matrixNxN matrixNxN::inverse() const
     }
     
     return inversed;
+}
+
+matrixNxN matrixNxN::transposed() const
+{
+    matrixNxN transposed = *this;
+    
+    for (size_t i = 1; i < transposed.size(); ++i)
+    {
+        for (size_t j = 0; j < i; ++j)
+        {
+            std::swap(transposed[i][j], transposed[j][i]);
+        }
+    }
+    
+    return transposed;
 }
 
 

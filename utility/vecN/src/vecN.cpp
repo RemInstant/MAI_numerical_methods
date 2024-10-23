@@ -3,6 +3,10 @@
 
 #include "../include/vecn.h"
 
+vecN::vecN():
+        _data()
+{ }
+
 vecN::vecN(size_t dim):
         _data(std::vector<double>(dim, 0))
 { }
@@ -99,6 +103,12 @@ vecN vecN::operator*(double term) const
 vecN vecN::operator/(double term) const
 {
     return vecN(*this) /= term;
+}
+
+
+vecN operator*(double term, vecN const &vec)
+{
+    return vec * term;
 }
 
 

@@ -10,6 +10,7 @@ private:
     std::vector<double> _data;
 
 public:
+    vecN();
     vecN(size_t dim);
     vecN(size_t dim, double value);
     vecN(std::vector<double> const &data);
@@ -28,6 +29,8 @@ public:
     vecN operator-(vecN const &other) const;
     vecN operator*(double term) const;
     vecN operator/(double term) const;
+    
+    friend vecN operator*(double term, vecN const &vec);
     
     double &operator[](size_t idx);
     double operator[](size_t idx) const;
