@@ -6,18 +6,6 @@
 #include <vecN.h>
 #include <matrixNxN.h>
 
-void enter_coefs(
-        std::vector<double> &coefs,
-        char identifier,
-        size_t from,
-        size_t to)
-{
-    for (size_t i = from; i <= to; ++i)
-    {
-        std::cin >> coefs[i];
-    }
-}
-
 std::pair<matrixNxN, vecN>
 jacobi_transform(
     matrixNxN const &matrix,
@@ -66,6 +54,11 @@ solve_with_iterations(
     vecN const &const_terms,
     double eps)
 {
+    if (eps < 0)
+    {
+        throw std::invalid_argument("Invalid epsilon");
+    }
+    
     auto [tr_matrix, tr_const_terms] = jacobi_transform(matrix, const_terms);
     
     validate_iterations(tr_matrix);
@@ -97,6 +90,11 @@ solve_with_seidel(
     vecN const &const_terms,
     double eps)
 {
+    if (eps < 0)
+    {
+        throw std::invalid_argument("Invalid epsilon");
+    }
+    
     auto [tr_matrix, tr_const_terms] = jacobi_transform(matrix, const_terms);
     
     matrixNxN b(matrix.size(), 0);
@@ -117,7 +115,7 @@ solve_with_seidel(
         }
     }
     
-    matrixNxN tmp = (matrixNxN::identical(matrix.size()) - b).inverse();
+    matrixNxN tmp = (matrixNxN::identical(matrix.size()) - b).inversed();
     matrixNxN modified_matrix = tmp * c;
     vecN modified_const_terms = tmp * tr_const_terms;
     validate_iterations(modified_matrix);
