@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <cmath>
 
-#include "../include/vecn.h"
+#include "../include/vecN.h"
 
 vecN::vecN():
         _data()
@@ -109,6 +109,24 @@ vecN vecN::operator/(double term) const
 vecN operator*(double term, vecN const &vec)
 {
     return vec * term;
+}
+
+
+double vecN::scalar_prod(vecN const &lhs, vecN const &rhs)
+{
+    if (lhs.size() != rhs.size())
+    {
+        throw std::invalid_argument("Dimensions of vectors does not correspond");
+    }
+    
+    double ans = 0;
+    
+    for (size_t i = 0; i < lhs.size(); ++i)
+    {
+        ans += lhs[i] * rhs[i];
+    }
+    
+    return ans;
 }
 
 

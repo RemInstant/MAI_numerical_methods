@@ -32,6 +32,8 @@ public:
     
     friend vecN operator*(double term, vecN const &vec);
     
+    static double scalar_prod(vecN const &lhs, vecN const &rhs);
+    
     double &operator[](size_t idx);
     double operator[](size_t idx) const;
 

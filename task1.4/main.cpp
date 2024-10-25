@@ -192,7 +192,7 @@ int main()
                 }
             }
             
-            std::cout << ")" << std::endl;
+            std::cout << ")^T" << std::endl;
         }
         
         bool flag = true;
@@ -200,6 +200,15 @@ int main()
         for (size_t i = 0; i < n && flag; ++i)
         {
             flag = validate_eigen(matrix, eigen[i], eps);
+        }
+        
+        for (size_t i = 0; i < n && flag; ++i)
+        {
+            for (size_t j = i + 1; j < n && flag; ++j)
+            {
+                flag = std::abs(vecN::scalar_prod(eigen[i].second, eigen[j].second)) <
+                        std::numeric_limits<double>::epsilon();
+            }
         }
         
         if (flag)
@@ -221,8 +230,6 @@ int main()
         auto [eigen_radius, k] = calc_eigen_radius_with_power_iterations(matrix, eps);
         
         std::cout << "Rotation iterations count: " << k << std::endl;
-        
-
         std::cout << "x_rad" << " = " << eigen_radius.first << " : h = (";
         
         for (size_t i = 0; i < n; ++i)
@@ -234,7 +241,7 @@ int main()
             }
         }
         
-        std::cout << ")" << std::endl;
+        std::cout << ")^T" << std::endl;
 
         
         if (validate_eigen(matrix, eigen_radius, eps))

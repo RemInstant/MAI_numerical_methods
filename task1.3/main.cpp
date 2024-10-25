@@ -34,20 +34,6 @@ jacobi_transform(
     return std::make_pair(tr_matrix, tr_const_terms);
 }
 
-void validate_iterations(
-    matrixNxN const &tr_matrix)
-{
-    double tr_matrix_l1_norm = tr_matrix.l1_norm();
-    double tr_matrix_c_norm = tr_matrix.continuous_norm();
-    double eps = std::numeric_limits<double>::epsilon();
-    
-    if (((tr_matrix_c_norm + 1 <= -eps) || (tr_matrix_c_norm - 1 >= -eps)) &&
-            ((tr_matrix_l1_norm + 1 <= -eps) || (tr_matrix_l1_norm - 1 >= -eps)))
-    {
-        throw std::invalid_argument("The method does not converges for the system");
-    }
-}
-
 std::pair<vecN, size_t>
 solve_with_iterations(
     matrixNxN const &matrix,
@@ -61,16 +47,23 @@ solve_with_iterations(
     
     auto [tr_matrix, tr_const_terms] = jacobi_transform(matrix, const_terms);
     
-    validate_iterations(tr_matrix);
-    
     // Iterations
     vecN prev_roots(0);
     vecN roots = tr_const_terms;
     
     size_t k = 0;
     double tr_matrix_c_norm = tr_matrix.continuous_norm();
-    double eps_k_coef = tr_matrix_c_norm / (1 - tr_matrix_c_norm);
-    double eps_k = 2*eps;
+    double eps_k_coef = 1;
+    
+    std::cout << tr_matrix_c_norm << std::endl;
+    
+    if (tr_matrix_c_norm < 1.0 - std::numeric_limits<double>::epsilon())
+    {
+        eps_k_coef = tr_matrix_c_norm / (1 - tr_matrix_c_norm);
+    }
+    
+    double eps_k = std::numeric_limits<double>::infinity();
+    double eps_k_prev = std::numeric_limits<double>::infinity();
     
     while (eps_k > eps)
     {
@@ -78,7 +71,13 @@ solve_with_iterations(
         prev_roots = std::move(roots);
         roots = tr_const_terms + tr_matrix * prev_roots;   
         
+        eps_k_prev = eps_k;
         eps_k = eps_k_coef * (roots - prev_roots).continuous_norm();
+        
+        if (eps_k > eps_k_prev)
+        {
+            throw std::invalid_argument("The method does not converges for the system");
+        }
     }   
     
     return std::make_pair(roots, k);
@@ -118,25 +117,25 @@ solve_with_seidel(
     matrixNxN tmp = (matrixNxN::identical(matrix.size()) - b).inversed();
     matrixNxN modified_matrix = tmp * c;
     vecN modified_const_terms = tmp * tr_const_terms;
-    validate_iterations(modified_matrix);
     
     // Iterations
     vecN prev_roots(0);
     vecN roots = tr_const_terms;
     
     size_t k = 0;
-    double eps_k_coef = c.continuous_norm() / (1 - modified_matrix.continuous_norm());
-    double eps_k = 2*eps;
     
-    // while (eps_k > eps)
-    // {
-    //     ++k;
-        
-    //     prev_roots = std::move(roots);
-    //     roots = modified_const_terms + modified_matrix * prev_roots;   
-        
-    //     eps_k = eps_k_coef * (roots - prev_roots).l1_norm();
-    // }
+    double modified_matrix_c_norm = modified_matrix.continuous_norm();
+    double eps_k_coef = 1;
+    
+    std::cout << modified_matrix_c_norm << std::endl;
+    
+    if (modified_matrix_c_norm < 1.0 - std::numeric_limits<double>::epsilon())
+    {
+        eps_k_coef = c.continuous_norm() / (1 - modified_matrix.continuous_norm());
+    }
+    
+    double eps_k = std::numeric_limits<double>::infinity();
+    double eps_k_prev = std::numeric_limits<double>::infinity();
     
     while (eps_k > eps)
     {
@@ -158,7 +157,13 @@ solve_with_seidel(
             }
         }
         
+        eps_k_prev = eps_k;
         eps_k = eps_k_coef * (roots - prev_roots).continuous_norm();
+        
+        if (eps_k > eps_k_prev)
+        {
+            throw std::invalid_argument("The method does not converges for the system");
+        }
     } 
     
     return std::make_pair(roots, k);
