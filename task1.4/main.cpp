@@ -8,20 +8,20 @@
 #include <vecN.h>
 #include <matrixNxN.h>
 
-double calc_diag_check_sum(
+double calc_check_sum(
     matrixNxN const &matrix)
 {
     double check_sum = 0;
     
     for (size_t i = 1; i < matrix.size(); ++i)
-        {
+    {
         for (size_t j = 0; j < i; ++j)
         {
             check_sum += matrix[i][j] * matrix[i][j];
         }
     }
     
-    return check_sum;
+    return std::sqrt(check_sum);
 }
 
 std::pair< std::vector< std::pair<double, vecN> >, size_t>
@@ -52,7 +52,7 @@ calc_eigen_with_rotation_iterations(
     matrixNxN transformation_matrix = matrixNxN::identical(matrix.size());
     size_t iter = 0;
     
-    while (std::sqrt(calc_diag_check_sum(matrix)) > eps)
+    while (calc_check_sum(matrix) > eps)
     {
         size_t mx_i = 0, mx_j = 1;
         
