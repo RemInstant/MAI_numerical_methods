@@ -14,7 +14,10 @@ public:
     vecN(size_t dim);
     vecN(size_t dim, double value);
     vecN(std::vector<double> const &data);
-    vecN(std::vector<double> data);
+
+public:
+    void print(std::ostream &stream, size_t precision);
+    void println(std::ostream &stream, size_t precision);
 
 public:
     bool equals(vecN const &other, double eps) const;

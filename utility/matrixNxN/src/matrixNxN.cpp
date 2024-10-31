@@ -65,6 +65,12 @@ void matrixNxN::print(std::ostream &stream, size_t precision)
     stream.width(former_width);
 }
 
+void matrixNxN::println(std::ostream &stream, size_t precision)
+{
+    print(stream, precision);
+    stream << std::endl;
+}
+
 
 bool matrixNxN::equals(matrixNxN const &other, double eps) const
 {
@@ -293,7 +299,6 @@ matrixNxN matrixNxN::inversed() const
     matrixNxN coefs = *this;
     matrixNxN constant_terms = identical(_data.size());
     matrixNxN inversed(_data.size());
-    size_t swap_count = 0;
     
     // First phase of gauss elimination
     for (size_t i = 0; i < _data.size(); ++i)
@@ -309,7 +314,6 @@ matrixNxN matrixNxN::inversed() const
             }
         }
         
-        swap_count += (idx_to_swap > i) ? (idx_to_swap - i) : (i - idx_to_swap);
         std::swap(coefs[i], coefs[idx_to_swap]);
         std::swap(constant_terms[i], constant_terms[idx_to_swap]);
         
@@ -327,13 +331,13 @@ matrixNxN matrixNxN::inversed() const
             
             double mult = coefs[j][i] / coefs[i][i];
             
-            for (size_t k = i; k < _data.size(); ++k)
+            for (size_t k = 0; k < _data.size(); ++k)
             {
                 if (k >= i)
                 {
                     coefs[j][k] -= coefs[i][k] * mult;
                 }
-                constant_terms[j][k] -= coefs[i][k] * mult;
+                constant_terms[j][k] -= constant_terms[i][k] * mult;
             }
         }
     }
@@ -378,7 +382,7 @@ void matrixNxN::throw_if_other_dim(vecN const &other) const
 {
     if (_data.size() != other.size())
     {
-        throw std::invalid_argument("Dimensions of vectors does not correspond");
+        throw std::invalid_argument("Dimensions does not correspond");
     }
 }
 
@@ -386,7 +390,7 @@ void matrixNxN::throw_if_other_dim(matrixNxN const &other) const
 {
     if (_data.size() != other.size())
     {
-        throw std::invalid_argument("Dimensions of vectors does not correspond");
+        throw std::invalid_argument("Dimensions does not correspond");
     }
 }
 

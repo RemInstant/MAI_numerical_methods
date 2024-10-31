@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <cmath>
+#include <iomanip>
 
 #include "../include/vecN.h"
 
@@ -19,9 +20,35 @@ vecN::vecN(std::vector<double> const &data):
         _data(data)
 { }
 
-vecN::vecN(std::vector<double> data):
-        _data(std::move(data))
-{ }
+// vecN::vecN(std::vector<double> data):
+//         _data(std::move(data))
+// { }
+
+
+void vecN::print(std::ostream &stream, size_t precision)
+{
+    std::ios_base::fmtflags former_flags = stream.flags();
+    std::streamsize former_precision = stream.precision();
+    std::streamsize former_width = stream.width();
+    
+    stream.precision(precision);
+    stream.setf(std::ios_base::fixed);
+    
+    for (size_t i = 0; i < _data.size(); ++i)
+    {
+        stream << _data[i] << ' ';
+    }
+    
+    stream.setf(former_flags);
+    stream.precision(former_precision);
+    stream.width(former_width);
+}
+
+void vecN::println(std::ostream &stream, size_t precision)
+{
+    print(stream, precision);
+    stream << std::endl;
+}
 
 
 bool vecN::equals(vecN const &other, double eps) const
@@ -116,7 +143,7 @@ double vecN::scalar_prod(vecN const &lhs, vecN const &rhs)
 {
     if (lhs.size() != rhs.size())
     {
-        throw std::invalid_argument("Dimensions of vectors does not correspond");
+        throw std::invalid_argument("Dimensions does not correspond");
     }
     
     double ans = 0;
@@ -187,7 +214,7 @@ void vecN::throw_if_other_dim(vecN const &other) const
 {
     if (_data.size() != other.size())
     {
-        throw std::invalid_argument("Dimensions of vectors does not correspond");
+        throw std::invalid_argument("Dimensions does not correspond");
     }
 }
 

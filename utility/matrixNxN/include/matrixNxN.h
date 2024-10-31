@@ -20,6 +20,7 @@ public:
 
 public:
     void print(std::ostream &stream, size_t precision);
+    void println(std::ostream &stream, size_t precision);
 
 public:
     bool equals(matrixNxN const &other, double eps) const;
