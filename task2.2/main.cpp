@@ -4,6 +4,7 @@
 #include <limits>
 #include <cmath>
 #include <numbers>
+#include <format>
 
 #include <checks.h>
 #include <vecN.h>
@@ -129,6 +130,33 @@ solve_equation_system_with_newton(
     return std::make_pair(std::make_pair(x1, x2), iter);
 }
 
+int get_solution_accuracy(
+    double (*f1)(double, double),
+    double (*f2)(double, double),
+    std::pair<double, double> x)
+{
+    double x1 = x.first;
+    double x2 = x.second;
+    double eps = 1.0;
+    size_t accuracy = 0;
+    
+    for (; eps > std::numeric_limits<double>::epsilon(); ++accuracy, eps /= 10)
+    {
+        if (std::abs(f1(x1, x2)) > eps || std::abs(f2(x1, x2)) > eps)
+        {
+            return accuracy - 1;
+        }
+    }
+    
+    return accuracy;
+}
+
+void print_verifictation(int accuracy)
+{
+    std::cout << (accuracy != -1
+            ? std::format("Verified (accurate to {} decimal places)", accuracy)
+            : "Wrong") << std::endl;
+}
 
 int main()
 {
@@ -154,8 +182,9 @@ int main()
     {
         auto [x, k_iter] = solve_equation_system_with_iterations(
                 phi1, phi2, q_iter, x1_0_iter, x2_0_iter, eps);
-        std::cout << "Iterations: x = (" << x.first << ", " << x.second << ")   ("
-                << k_iter << ")" << std::endl;
+        std::cout << "Iterations: x = (" << x.first << ", " << x.second << ")  ("
+                << std::setw(2) << k_iter << ")  ";
+        print_verifictation(get_solution_accuracy(f1, f2, x));
     }
     catch (std::invalid_argument e)
     {
@@ -167,8 +196,9 @@ int main()
         auto [x, k_iter] = solve_equation_system_with_newton(
                 f1, f2, f1_x1_deriv, f1_x2_deriv, f2_x1_deriv, f2_x2_deriv,
                 x1_0_newton, x2_0_newton, eps);
-        std::cout << "Newton:     x = (" << x.first << ", " << x.second << ")   ("
-                << k_iter << ")" << std::endl;
+        std::cout << "Newton:     x = (" << x.first << ", " << x.second << ")  ("
+                << std::setw(2) << k_iter << ")  ";
+        print_verifictation(get_solution_accuracy(f1, f2, x));
     }
     catch (std::invalid_argument e)
     {

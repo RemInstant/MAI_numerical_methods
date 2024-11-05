@@ -4,6 +4,7 @@
 #include <limits>
 #include <cmath>
 #include <numbers>
+#include <format>
 
 #include <checks.h>
 
@@ -142,6 +143,32 @@ solve_equation_with_secant(
     return std::make_pair(x, iter);
 }
 
+int get_solution_accuracy(
+    double (*func)(double),
+    double x)
+{
+    double eps = 1.0;
+    size_t accuracy = 0;
+    
+    for (; eps > std::numeric_limits<double>::epsilon(); ++accuracy, eps /= 10)
+    {
+        if (std::abs(func(x)) > eps)
+        {
+            return accuracy - 1;
+        }
+    }
+    
+    return accuracy;
+}
+
+void print_verifictation(int accuracy)
+{
+    std::cout << (accuracy != -1
+            ? std::format("Verified (accurate to {} decimal places)", accuracy)
+            : "Wrong") << std::endl;
+}
+
+
 int main()
 {
     std::freopen("input.txt", "r", stdin);
@@ -170,8 +197,9 @@ int main()
     
     try
     {
-        auto [x_iter, k_iter] = solve_equation_with_iterations(phi, q_iter, x0_iter, eps);
-        std::cout << "Iterations: x = " << x_iter << " (" << k_iter << ")" << std::endl;
+        auto [x, k] = solve_equation_with_iterations(phi, q_iter, x0_iter, eps);
+        std::cout << "Iterations: x = " << x << "  (" << std::setw(2) << k << ")  ";
+        print_verifictation(get_solution_accuracy(func, x));
     }
     catch (std::invalid_argument e)
     {
@@ -180,8 +208,9 @@ int main()
     
     try
     {
-        auto [x_dich, k_dich] = solve_equation_with_dichotomy(func, a_dich, b_dich, eps);
-        std::cout << "Dichotomy:  x = " << x_dich << " (" << k_dich << ")" << std::endl;
+        auto [x, k] = solve_equation_with_dichotomy(func, a_dich, b_dich, eps);
+        std::cout << "Dichotomy:  x = " << x << "  (" << std::setw(2) << k << ")  ";
+        print_verifictation(get_solution_accuracy(func, x));
     }
     catch (std::invalid_argument e)
     {
@@ -190,9 +219,10 @@ int main()
     
     try
     {
-        auto [x_newton, k_newton] = solve_equation_with_newton(
+        auto [x, k] = solve_equation_with_newton(
                 func, func_first_deriv, func_second_deriv, x0_newton, eps);
-        std::cout << "Newton:     x = " << x_newton << " (" << k_newton << ")" << std::endl;
+        std::cout << "Newton:     x = " << x << "  (" << std::setw(2) << k << ")  ";
+        print_verifictation(get_solution_accuracy(func, x));
     }
     catch (std::invalid_argument e)
     {
@@ -201,9 +231,10 @@ int main()
     
     try
     {
-        auto [x_secant, k_secant] = solve_equation_with_secant(
+        auto [x, k] = solve_equation_with_secant(
                 func, func_second_deriv, x0_secant, x1_secant, eps);
-        std::cout << "Secant:     x = " << x_secant << " (" << k_secant << ")" << std::endl;
+        std::cout << "Secant:     x = " << x << "  (" << std::setw(2) << k << ")  ";
+        print_verifictation(get_solution_accuracy(func, x));
     }
     catch (std::invalid_argument e)
     {
