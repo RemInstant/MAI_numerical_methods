@@ -8,8 +8,7 @@
 #include <algorithm>
 
 #include <checks.h>
-#include <vecN.h>
-#include <matrixNxN.h>
+#include <polynomial.h>
 #include <algorithms.h>
 
 int get_interpolation_accuracy(

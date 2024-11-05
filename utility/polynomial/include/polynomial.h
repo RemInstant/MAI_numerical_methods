@@ -12,6 +12,7 @@ private:
     std::deque<double> _coefs;
     
 public:
+    // TODO: reverse constructor
     polynomial();
     polynomial(std::vector<double> const &coefs);
 
@@ -42,7 +43,6 @@ public:
 
 public:
     size_t degree() const;
-    
     double valueAt(double x) const;
 
 private:

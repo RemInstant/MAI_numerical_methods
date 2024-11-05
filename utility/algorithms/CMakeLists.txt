@@ -27,3 +27,7 @@ target_link_libraries(
         num_methods_util_algorithms
         PUBLIC
         num_methods_util_polynomial)
+target_link_libraries(
+        num_methods_util_algorithms
+        PUBLIC
+        num_methods_util_piecewise_polynomial)

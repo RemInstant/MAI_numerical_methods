@@ -45,7 +45,7 @@ void polynomial::print(std::ostream &stream, size_t precision)
     
     for (size_t i = _coefs.size(); i > 0; --i)
     {
-        if (std::abs(_coefs[i-1]) < eps)
+        if (_coefs.size() > 1 && std::abs(_coefs[i-1]) < eps)
         {
             continue;
         }

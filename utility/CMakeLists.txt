@@ -9,5 +9,6 @@ add_subdirectory(checks)
 add_subdirectory(vecN)
 add_subdirectory(matrixNxN)
 add_subdirectory(polynomial)
+add_subdirectory(piecewise_polynomial)
 
 add_subdirectory(algorithms)

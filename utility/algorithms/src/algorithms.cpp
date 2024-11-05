@@ -1,15 +1,13 @@
 #include <stdexcept>
 #include <limits>
+#include <algorithm>
 
 #include "../include/algorithms.h"
 
 std::vector<vecN> algorithms::solve_linear_equation(
     matrixNxN coefs,
-    std::vector<vecN> constant_terms,
-    double eps)
+    std::vector<vecN> constant_terms)
 {
-    checks::throw_if_invalid_eps(eps);
-    
     if (constant_terms.size() == 0)
     {
         return std::vector<vecN>(0);
@@ -91,19 +89,22 @@ std::vector<vecN> algorithms::solve_linear_equation(
 
 vecN algorithms::solve_linear_equation(
     matrixNxN coefs,
-    vecN constant_terms,
-    double eps)
+    vecN constant_terms)
 {
-    return solve_linear_equation(coefs, std::vector<vecN>(1, constant_terms), eps)[0];
+    return solve_linear_equation(coefs, std::vector<vecN>(1, constant_terms))[0];
 }
 
 polynomial algorithms::interpolate_with_lagrange(
-    std::vector<double> points,
-    std::vector<double> values)
+    std::vector<double> const &points,
+    std::vector<double> const &values)
 {
     if (points.size() != values.size())
     {
         throw std::invalid_argument("Point and values count are not equal");
+    }
+    if (points.size() == 0)
+    {
+        return polynomial();
     }
     
     polynomial interpolation;
@@ -130,12 +131,16 @@ polynomial algorithms::interpolate_with_lagrange(
 }
 
 polynomial algorithms::interpolate_with_newton(
-    std::vector<double> points,
-    std::vector<double> values)
+    std::vector<double> const &points,
+    std::vector<double> const &values)
 {
     if (points.size() != values.size())
     {
         throw std::invalid_argument("Point and values count are not equal");
+    }
+    if (points.size() == 0)
+    {
+        return polynomial();
     }
     
     std::vector<std::vector<double>> div_diff(points.size(), std::vector<double>(points.size()));
@@ -162,4 +167,91 @@ polynomial algorithms::interpolate_with_newton(
     }
     
     return interpolation;
+}
+
+piecewise_polynomial algorithms::build_spline(
+    std::vector<double> const &points,
+    std::vector<double> const &values)
+{
+    if (points.size() != values.size())
+    {
+        throw std::invalid_argument("Point and values count are not equal");
+    }
+    if (points.size() == 0)
+    {
+        return piecewise_polynomial();
+    }
+    
+    std::vector<std::pair<double, double>> pv(points.size());
+    for (size_t i = 0; i < pv.size(); ++i)
+    {
+        pv[i].first = points[i];
+        pv[i].second = values[i];
+    }
+    
+    std::sort(pv.begin(), pv.end(),
+            [](std::pair<double, double> const &a, std::pair<double, double> const &b)
+            {
+                return a.first < b.first;
+            });
+    
+    std::vector<double> h(points.size() - 1);
+    matrixNxN eq_coefs(points.size() - 2);
+    vecN eq_const_terms(points.size() - 2);
+    
+    for (size_t i = 0; i < h.size(); ++i)
+    {
+        h[i] = pv[i+1].first - pv[i].first;
+    }
+    
+    for (size_t i = 0; i < eq_coefs.size(); ++i)
+    {
+        if (i > 0)
+        {
+            eq_coefs[i][i-1] = h[i];
+        }
+        
+        eq_coefs[i][i] = 2 * (h[i] + h[i+1]);
+        
+        if (i + 1 < eq_coefs.size())
+        {
+            eq_coefs[i][i+1] = h[i+1];
+        }
+        
+        eq_const_terms[i] = 3 * ((pv[i+2].second - pv[i+1].second) / h[i+1] -
+                (pv[i+1].second - pv[i].second) / h[i]);
+    }
+    
+    vecN roots = solve_linear_equation(eq_coefs, eq_const_terms);
+    
+    std::vector<double> c(points.size() - 1, 0);
+    for (size_t i = 0; i < roots.size(); ++i)
+    {
+        c[i+1] = roots[i];
+    }
+    
+    piecewise_polynomial spline;
+    for (size_t i = 0; i < c.size(); ++i)
+    {
+        double a = pv[i].second;
+        double b = (pv[i+1].second - pv[i].second) / h[i] -
+                (i + 1 < c.size()
+                ? h[i] * (c[i+1] + 2*c[i]) / 3
+                : 2 * h[i] * c[i] / 3);
+        double d = ((i + 1 < c.size() ? c[i+1] : 0) - c[i]) / (3 * h[i]);
+        
+        polynomial p({-pv[i].first, 1});
+        polynomial q = polynomial({a}) + p*b + p*p*c[i] + p*p*p*d;
+        
+        if (i == 0)
+        {
+            spline = piecewise_polynomial(pv[i].first, pv[i+1].first, q);
+        }
+        else
+        {
+            spline.push_back(pv[i+1].first, q);
+        }
+    }
+    
+    return spline;
 }
