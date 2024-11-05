@@ -13,7 +13,7 @@
 #include <algorithms.h>
 
 int get_interpolation_accuracy(
-    polynome interpolation,
+    polynomial interpolation,
     std::vector<double> points,
     std::vector<double> values)
 {
@@ -63,7 +63,7 @@ int main()
         std::vector<double> values(points);
         std::for_each(values.begin(), values.end(), [](double &x){ x = std::tan(x); });
         
-        polynome interpolation = algorithms::interpolate_with_lagrange(points, values);
+        polynomial interpolation = algorithms::interpolate_with_lagrange(points, values);
         std::cout << "P(x) = ";
         interpolation.println();
         
@@ -99,7 +99,7 @@ int main()
         std::vector<double> values(points);
         std::for_each(values.begin(), values.end(), [](double &x){ x = std::tan(x); });
         
-        polynome interpolation = algorithms::interpolate_with_newton(points, values);
+        polynomial interpolation = algorithms::interpolate_with_newton(points, values);
         std::cout << "P(x) = ";
         interpolation.println();
         

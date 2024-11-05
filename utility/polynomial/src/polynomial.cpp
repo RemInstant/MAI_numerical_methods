@@ -5,14 +5,14 @@
 
 #include <checks.h>
 
-#include "../include/polynome.h"
+#include "../include/polynomial.h"
 
-polynome::polynome():
+polynomial::polynomial():
     _coefs(1, 0)
 { }
 
 
-polynome::polynome(std::vector<double> const &coefs):
+polynomial::polynomial(std::vector<double> const &coefs):
     _coefs(coefs.size())
 {
     if (coefs.empty())
@@ -29,7 +29,7 @@ polynome::polynome(std::vector<double> const &coefs):
 }
 
 
-void polynome::print(std::ostream &stream, size_t precision)
+void polynomial::print(std::ostream &stream, size_t precision)
 {
     std::ios_base::fmtflags former_flags = stream.flags();
     std::streamsize former_precision = stream.precision();
@@ -78,14 +78,14 @@ void polynome::print(std::ostream &stream, size_t precision)
     stream.precision(former_precision);
 }
 
-void polynome::println(std::ostream &stream, size_t precision)
+void polynomial::println(std::ostream &stream, size_t precision)
 {
     print(stream, precision);
     stream << std::endl;
 }
 
 
-bool polynome::equals(polynome const &other, double eps) const
+bool polynomial::equals(polynomial const &other, double eps) const
 {
     size_t mn = std::min(_coefs.size(), other._coefs.size());
     
@@ -115,7 +115,7 @@ bool polynome::equals(polynome const &other, double eps) const
 }
 
 
-polynome &polynome::operator+=(polynome const &other)
+polynomial &polynomial::operator+=(polynomial const &other)
 {
     extend_to_size_of(other);
     
@@ -129,7 +129,7 @@ polynome &polynome::operator+=(polynome const &other)
     return *this;
 }
 
-polynome &polynome::operator-=(polynome const &other)
+polynomial &polynomial::operator-=(polynomial const &other)
 {
     extend_to_size_of(other);
     
@@ -143,7 +143,7 @@ polynome &polynome::operator-=(polynome const &other)
     return *this;
 }
 
-polynome &polynome::operator*=(double term)
+polynomial &polynomial::operator*=(double term)
 {
     for (size_t i = 0; i < _coefs.size(); ++i)
     {
@@ -155,7 +155,7 @@ polynome &polynome::operator*=(double term)
     return *this;
 }
 
-polynome &polynome::operator/=(double term)
+polynomial &polynomial::operator/=(double term)
 {
     checks::throw_if_zero_divisor(term);
     
@@ -167,7 +167,7 @@ polynome &polynome::operator/=(double term)
     return *this;
 }
 
-polynome &polynome::operator*=(polynome const &other)
+polynomial &polynomial::operator*=(polynomial const &other)
 {
     std::deque tmp(_coefs);
     
@@ -192,54 +192,54 @@ polynome &polynome::operator*=(polynome const &other)
     return *this;
 }
 
-polynome polynome::operator+(polynome const &other) const
+polynomial polynomial::operator+(polynomial const &other) const
 {
-    return polynome(*this) += other;
+    return polynomial(*this) += other;
 }
 
-polynome polynome::operator-(polynome const &other) const
+polynomial polynomial::operator-(polynomial const &other) const
 {
-    return polynome(*this) -= other;
+    return polynomial(*this) -= other;
 }
 
-polynome polynome::operator*(double term) const
+polynomial polynomial::operator*(double term) const
 {
-    return polynome(*this) *= term;
+    return polynomial(*this) *= term;
 }
 
-polynome polynome::operator/(double term) const
+polynomial polynomial::operator/(double term) const
 {
-    return polynome(*this) /= term;
+    return polynomial(*this) /= term;
 }
 
-polynome polynome::operator*(polynome const &other) const
+polynomial polynomial::operator*(polynomial const &other) const
 {
-    return polynome(*this) *= other;
+    return polynomial(*this) *= other;
 }
 
-double &polynome::operator[](size_t idx)
-{
-    return _coefs[idx];
-}
-
-double polynome::operator[](size_t idx) const
+double &polynomial::operator[](size_t idx)
 {
     return _coefs[idx];
 }
 
-double polynome::operator()(double x) const
+double polynomial::operator[](size_t idx) const
+{
+    return _coefs[idx];
+}
+
+double polynomial::operator()(double x) const
 {
     return valueAt(x);
 }
 
 
 
-size_t polynome::degree() const
+size_t polynomial::degree() const
 {
     return _coefs.size() - 1;
 }
 
-double polynome::valueAt(double x) const
+double polynomial::valueAt(double x) const
 {
     double ans = 0;
     
@@ -253,7 +253,7 @@ double polynome::valueAt(double x) const
 }
 
 
-void polynome::extend_to_size_of(polynome const &other)
+void polynomial::extend_to_size_of(polynomial const &other)
 {
     if (other._coefs.size() > _coefs.size())
     {
@@ -261,7 +261,7 @@ void polynome::extend_to_size_of(polynome const &other)
     }
 }
 
-void polynome::shrink()
+void polynomial::shrink()
 {
     while (_coefs.size() > 1 && std::abs(_coefs.back()) < std::numeric_limits<double>::epsilon())
     {

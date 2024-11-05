@@ -26,4 +26,4 @@ target_link_libraries(
 target_link_libraries(
         num_methods_util_algorithms
         PUBLIC
-        num_methods_util_polynome)
+        num_methods_util_polynomial)

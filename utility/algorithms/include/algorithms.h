@@ -4,7 +4,7 @@
 #include <checks.h>
 #include <vecN.h>
 #include <matrixNxN.h>
-#include <polynome.h>
+#include <polynomial.h>
 
 namespace algorithms
 {
@@ -18,11 +18,11 @@ namespace algorithms
         vecN constant_terms,
         double eps);
     
-    polynome interpolate_with_lagrange(
+    polynomial interpolate_with_lagrange(
         std::vector<double> points,
         std::vector<double> values);
     
-    polynome interpolate_with_newton(
+    polynomial interpolate_with_newton(
         std::vector<double> points,
         std::vector<double> values);
 }

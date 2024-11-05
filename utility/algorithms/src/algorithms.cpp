@@ -97,7 +97,7 @@ vecN algorithms::solve_linear_equation(
     return solve_linear_equation(coefs, std::vector<vecN>(1, constant_terms), eps)[0];
 }
 
-polynome algorithms::interpolate_with_lagrange(
+polynomial algorithms::interpolate_with_lagrange(
     std::vector<double> points,
     std::vector<double> values)
 {
@@ -106,11 +106,11 @@ polynome algorithms::interpolate_with_lagrange(
         throw std::invalid_argument("Point and values count are not equal");
     }
     
-    polynome interpolation;
+    polynomial interpolation;
     
     for (size_t i = 0; i < points.size(); ++i)
     {
-        polynome li({1});
+        polynomial li({1});
         
         for (size_t j = 0; j < points.size(); ++j)
         {
@@ -119,7 +119,7 @@ polynome algorithms::interpolate_with_lagrange(
                 continue;
             }
             
-            li *= polynome({-points[j], 1});
+            li *= polynomial({-points[j], 1});
             li /= points[i] - points[j];
         }
         
@@ -129,7 +129,7 @@ polynome algorithms::interpolate_with_lagrange(
     return interpolation;
 }
 
-polynome algorithms::interpolate_with_newton(
+polynomial algorithms::interpolate_with_newton(
     std::vector<double> points,
     std::vector<double> values)
 {
@@ -153,12 +153,12 @@ polynome algorithms::interpolate_with_newton(
         }
     }
     
-    polynome interpolation, mult({1});
+    polynomial interpolation, mult({1});
     
     for (size_t i = 0; i < points.size(); ++i)
     {
         interpolation += mult * div_diff[0][i];
-        mult *= polynome({-points[i], 1});
+        mult *= polynomial({-points[i], 1});
     }
     
     return interpolation;
