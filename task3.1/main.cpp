@@ -5,6 +5,7 @@
 #include <cmath>
 #include <numbers>
 #include <format>
+#include <algorithm>
 
 #include <checks.h>
 #include <vecN.h>
@@ -59,14 +60,8 @@ int main()
             3.0 / 8 * std::numbers::pi,
         };
     
-        std::vector<double> values;
-        
-        //std::transform
-        
-        for (double point : points)
-        {
-            values.push_back(std::tan(point));
-        }
+        std::vector<double> values(points);
+        std::for_each(values.begin(), values.end(), [](double &x){ x = std::tan(x); });
         
         polynome interpolation = algorithms::interpolate_with_lagrange(points, values);
         std::cout << "P(x) = ";
@@ -101,14 +96,8 @@ int main()
             3.0 / 8 * std::numbers::pi,
         };
     
-        std::vector<double> values;
-        
-        //std::transform
-        
-        for (double point : points)
-        {
-            values.push_back(std::tan(point));
-        }
+        std::vector<double> values(points);
+        std::for_each(values.begin(), values.end(), [](double &x){ x = std::tan(x); });
         
         polynome interpolation = algorithms::interpolate_with_newton(points, values);
         std::cout << "P(x) = ";
