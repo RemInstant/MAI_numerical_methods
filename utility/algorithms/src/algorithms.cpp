@@ -96,3 +96,70 @@ vecN algorithms::solve_linear_equation(
 {
     return solve_linear_equation(coefs, std::vector<vecN>(1, constant_terms), eps)[0];
 }
+
+polynome algorithms::interpolate_with_lagrange(
+    std::vector<double> points,
+    std::vector<double> values)
+{
+    if (points.size() != values.size())
+    {
+        throw std::invalid_argument("Point and values count are not equal");
+    }
+    
+    polynome interpolation;
+    
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        polynome li({1});
+        
+        for (size_t j = 0; j < points.size(); ++j)
+        {
+            if (i == j)
+            {
+                continue;
+            }
+            
+            li *= polynome({-points[j], 1});
+            li /= points[i] - points[j];
+        }
+        
+        interpolation += li * values[i];
+    }
+    
+    return interpolation;
+}
+
+polynome algorithms::interpolate_with_newton(
+    std::vector<double> points,
+    std::vector<double> values)
+{
+    if (points.size() != values.size())
+    {
+        throw std::invalid_argument("Point and values count are not equal");
+    }
+    
+    std::vector<std::vector<double>> div_diff(points.size(), std::vector<double>(points.size()));
+       
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        div_diff[i][0] = values[i]; 
+    }
+    
+    for (size_t j = 1; j < points.size(); ++j)
+    {
+        for (size_t i = 0; i+j < points.size(); ++i)
+        {
+            div_diff[i][j] = (div_diff[i+1][j-1] - div_diff[i][j-1]) / (points[i+j] - points[i]);
+        }
+    }
+    
+    polynome interpolation, mult({1});
+    
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        interpolation += mult * div_diff[0][i];
+        mult *= polynome({-points[i], 1});
+    }
+    
+    return interpolation;
+}

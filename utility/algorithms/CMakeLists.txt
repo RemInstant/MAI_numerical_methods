@@ -23,3 +23,7 @@ target_link_libraries(
         num_methods_util_algorithms
         PUBLIC
         num_methods_util_matrixnxn)
+target_link_libraries(
+        num_methods_util_algorithms
+        PUBLIC
+        num_methods_util_polynome)
