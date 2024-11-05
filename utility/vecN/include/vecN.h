@@ -1,7 +1,8 @@
-#ifndef _NUM_METHODS_UTIL_VECN_
-#define _NUM_METHODS_UTIL_VECN_
+#ifndef _NUM_METHODS_UTIL_VECN_H_
+#define _NUM_METHODS_UTIL_VECN_H_
 
 #include <vector>
+#include <iostream>
 
 class vecN 
 {
@@ -16,8 +17,8 @@ public:
     vecN(std::vector<double> const &data);
 
 public:
-    void print(std::ostream &stream, size_t precision);
-    void println(std::ostream &stream, size_t precision);
+    void print(std::ostream &stream = std::cout, size_t precision = 3);
+    void println(std::ostream &stream = std::cout, size_t precision = 3);
 
 public:
     bool equals(vecN const &other, double eps) const;
@@ -52,4 +53,4 @@ private:
 
 };
 
-#endif // _NUM_METHODS_UTIL_VECN_
+#endif // _NUM_METHODS_UTIL_VECN_H_

@@ -3,6 +3,8 @@
 #include <limits>
 #include <iomanip>
 
+#include <checks.h>
+
 #include "../include/matrixNxN.h"
 
 matrixNxN::matrixNxN():
@@ -75,6 +77,7 @@ void matrixNxN::println(std::ostream &stream, size_t precision)
 bool matrixNxN::equals(matrixNxN const &other, double eps) const
 {
     throw_if_other_dim(other);
+    checks::throw_if_invalid_eps(eps);
     
     for (size_t i = 0; i < _data.size(); ++i)
     {
@@ -89,6 +92,8 @@ bool matrixNxN::equals(matrixNxN const &other, double eps) const
 
 bool matrixNxN::is_symmetric(double eps) const
 {
+    checks::throw_if_invalid_eps(eps);
+    
     for (size_t i = 1; i < _data.size(); ++i)
     {
         for (size_t j = 0; j < i; ++j)
@@ -140,6 +145,8 @@ matrixNxN &matrixNxN::operator*=(double term)
 
 matrixNxN &matrixNxN::operator/=(double term)
 {
+    checks::throw_if_zero_divisor(term);
+    
     for (size_t i = 0; i < _data.size(); ++i)
     {
         _data[i] /= term;

@@ -1,7 +1,9 @@
-#ifndef _NUM_METHODS_UTIL_MATRIXNXN_
-#define _NUM_METHODS_UTIL_MATRIXNXN_
+#ifndef _NUM_METHODS_UTIL_MATRIXNXN_H_
+#define _NUM_METHODS_UTIL_MATRIXNXN_H_
 
 #include <vector>
+#include <iostream>
+
 #include <vecN.h>
 
 class matrixNxN 
@@ -19,8 +21,8 @@ public:
     static matrixNxN identical(size_t dim);
 
 public:
-    void print(std::ostream &stream, size_t precision);
-    void println(std::ostream &stream, size_t precision);
+    void print(std::ostream &stream = std::cout, size_t precision = 3);
+    void println(std::ostream &stream = std::cout, size_t precision = 3);
 
 public:
     bool equals(matrixNxN const &other, double eps) const;
@@ -60,4 +62,4 @@ private:
 
 };
 
-#endif // _NUM_METHODS_UTIL_MATRIXNXN_
+#endif // _NUM_METHODS_UTIL_MATRIXNXN_H_

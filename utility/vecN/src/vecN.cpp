@@ -2,6 +2,8 @@
 #include <cmath>
 #include <iomanip>
 
+#include <checks.h>
+
 #include "../include/vecN.h"
 
 vecN::vecN():
@@ -54,6 +56,7 @@ void vecN::println(std::ostream &stream, size_t precision)
 bool vecN::equals(vecN const &other, double eps) const
 {
     throw_if_other_dim(other);
+    checks::throw_if_invalid_eps(eps);
     
     for (size_t i = 0; i < _data.size(); ++i)
     {
@@ -103,6 +106,8 @@ vecN &vecN::operator*=(double term)
 
 vecN &vecN::operator/=(double term)
 {
+    checks::throw_if_zero_divisor(term);
+    
     for (size_t i = 0; i < _data.size(); ++i)
     {
         _data[i] /= term;

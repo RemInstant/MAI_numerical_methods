@@ -14,4 +14,8 @@ target_include_directories(
 target_link_libraries(
         num_methods_util_matrixnxn
         PUBLIC
+        num_methods_util_checks)
+target_link_libraries(
+        num_methods_util_matrixnxn
+        PUBLIC
         num_methods_util_vecn)

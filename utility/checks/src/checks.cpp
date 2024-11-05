@@ -1,6 +1,16 @@
 #include <stdexcept>
+#include <limits>
 
 #include "../include/checks.h"
+
+
+void checks::throw_if_zero_divisor(double divisor)
+{
+    if (std::abs(divisor) < std::numeric_limits<double>::epsilon())
+    {
+        throw std::invalid_argument("Cannot divide by zero");
+    }
+}
 
 void checks::throw_if_invalid_eps(double eps)
 {
