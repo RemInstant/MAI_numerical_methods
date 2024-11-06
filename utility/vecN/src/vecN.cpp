@@ -27,7 +27,7 @@ vecN::vecN(std::vector<double> const &data):
 // { }
 
 
-void vecN::print(std::ostream &stream, size_t precision)
+void vecN::print(std::ostream &stream, size_t precision) const
 {
     std::ios_base::fmtflags former_flags = stream.flags();
     std::streamsize former_precision = stream.precision();
@@ -46,7 +46,7 @@ void vecN::print(std::ostream &stream, size_t precision)
     stream.width(former_width);
 }
 
-void vecN::println(std::ostream &stream, size_t precision)
+void vecN::println(std::ostream &stream, size_t precision) const
 {
     print(stream, precision);
     stream << std::endl;

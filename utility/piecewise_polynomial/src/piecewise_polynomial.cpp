@@ -21,7 +21,7 @@ piecewise_polynomial::piecewise_polynomial(
 { }
 
 
-void piecewise_polynomial::print(std::ostream &stream, size_t precision, size_t dot_precision)
+void piecewise_polynomial::print(std::ostream &stream, size_t precision, size_t dot_precision) const
 {
     std::ios_base::fmtflags former_flags = stream.flags();
     std::streamsize former_width = stream.width();
@@ -46,7 +46,8 @@ void piecewise_polynomial::print(std::ostream &stream, size_t precision, size_t 
             stream << std::endl;
         }
         
-        stream << std::setw(bound_max_len) << _bounds[i] << " < x <= " <<
+        stream << std::setw(bound_max_len) << _bounds[i] <<
+                (i > 0 ? " <  x <= " : " <= x <= ") <<
                 std::setw(bound_max_len) << _bounds[i+1] << " : ";
         
         if (_polynomials[i][_polynomials[i].degree()] > 0)
@@ -62,7 +63,7 @@ void piecewise_polynomial::print(std::ostream &stream, size_t precision, size_t 
     stream.precision(former_precision);
 }
 
-void piecewise_polynomial::println(std::ostream &stream, size_t precision, size_t dot_precision)
+void piecewise_polynomial::println(std::ostream &stream, size_t precision, size_t dot_precision) const
 {
     print(stream, precision, dot_precision);
     stream << std::endl;
@@ -150,6 +151,11 @@ size_t piecewise_polynomial::degree() const
 double piecewise_polynomial::valueAt(double x) const
 {
     size_t bound_idx = std::lower_bound(_bounds.begin(), _bounds.end(), x) - _bounds.begin();
+    
+    if (bound_idx == 0 && std::abs(_bounds[0] - x) < std::numeric_limits<double>::epsilon())
+    {
+        return _polynomials[0].valueAt(x);
+    }
     
     if (bound_idx == 0 || bound_idx == _bounds.size())
     {

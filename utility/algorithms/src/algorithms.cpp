@@ -4,7 +4,78 @@
 
 #include "../include/algorithms.h"
 
-std::vector<vecN> algorithms::solve_linear_equation(
+std::vector<vecN> solve_tridiagonal_linear_equation_system(
+    matrixNxN const &coefs,
+    std::vector<vecN> const &constant_terms)
+{
+    size_t equation_dimension = coefs.size();
+    size_t term_group_count = constant_terms.size();
+    
+    vecN coefs_a(equation_dimension);
+    vecN coefs_b(equation_dimension);
+    vecN coefs_c(equation_dimension);
+    std::vector<vecN> const &coefs_d = constant_terms;
+    
+    for (size_t i = 0; i < equation_dimension; ++i)
+    {
+        coefs_a[i] = i > 0 ? coefs[i][i-1] : 0;
+        coefs_b[i] = coefs[i][i];
+        coefs_c[i] = i + 1 < equation_dimension ? coefs[i][i+1] : 0;
+    }
+    
+    // First phase of Thomas algorithm
+    vecN coefs_p(equation_dimension, 0);
+    std::vector<vecN> coefs_q(term_group_count, vecN(equation_dimension, 0));
+    
+    if (abs(coefs_b[0]) < std::numeric_limits<double>::epsilon())
+    {
+        throw std::invalid_argument("Incorrect system");
+    }
+    
+    coefs_p[0] = -coefs_c[0] / coefs_b[0];
+    coefs_q[0] = coefs_d[0] / coefs_b[0];
+    
+    for (size_t i = 1; i < equation_dimension; ++i)
+    {
+        double div = coefs_b[i] + coefs_a[i] * coefs_p[i-1];
+        
+        if (abs(div) < std::numeric_limits<double>::epsilon())
+        {
+            throw std::invalid_argument("Incorrect system");
+        }
+        
+        coefs_p[i] = -coefs_c[i] / div;
+        
+        for (size_t k = 0; k < term_group_count; ++k)
+        {
+            coefs_q[k][i] = (coefs_d[k][i] - coefs_a[i] * coefs_q[k][i-1]) / div;
+        }
+    }
+    
+    // Second phase of Thomas algorithm
+    std::vector<vecN> roots(term_group_count, vecN(equation_dimension, 0));
+    
+    for (size_t k = 0; k < term_group_count; ++k)
+    {
+        roots[k][equation_dimension - 1] = coefs_q[k][equation_dimension - 1];
+        
+        for (size_t i = equation_dimension - 1; i > 0; --i)
+        {
+            roots[k][i-1] = coefs_p[i-1] * roots[k][i] + coefs_q[k][i-1];
+        }
+    }
+    
+    return roots;
+}
+
+vecN solve_tridiagonal_linear_equation_system(
+    matrixNxN coefs,
+    vecN constant_terms)
+{
+    return solve_tridiagonal_linear_equation_system(coefs, std::vector<vecN>(1, constant_terms))[0];
+}
+
+std::vector<vecN> algorithms::solve_linear_equation_system(
     matrixNxN coefs,
     std::vector<vecN> constant_terms)
 {
@@ -87,11 +158,11 @@ std::vector<vecN> algorithms::solve_linear_equation(
     return roots;
 }
 
-vecN algorithms::solve_linear_equation(
+vecN algorithms::solve_linear_equation_system(
     matrixNxN coefs,
     vecN constant_terms)
 {
-    return solve_linear_equation(coefs, std::vector<vecN>(1, constant_terms))[0];
+    return solve_linear_equation_system(coefs, std::vector<vecN>(1, constant_terms))[0];
 }
 
 polynomial algorithms::interpolate_with_lagrange(
@@ -222,7 +293,7 @@ piecewise_polynomial algorithms::build_spline(
                 (pv[i+1].second - pv[i].second) / h[i]);
     }
     
-    vecN roots = solve_linear_equation(eq_coefs, eq_const_terms);
+    vecN roots = solve_tridiagonal_linear_equation_system(eq_coefs, eq_const_terms);
     
     std::vector<double> c(points.size() - 1, 0);
     for (size_t i = 0; i < roots.size(); ++i)

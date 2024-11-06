@@ -12,42 +12,69 @@
 #include <piecewise_polynomial.h>
 #include <algorithms.h>
 
-// int get_interpolation_accuracy(
-//     polynomial interpolation,
-//     std::vector<double> points,
-//     std::vector<double> values)
-// {
-//     if (points.size() != values.size())
-//     {
-//         throw std::invalid_argument("Point and values count are not equal");
-//     }
+int get_spline_accuracy(
+    piecewise_polynomial spline,
+    std::vector<double> points,
+    std::vector<double> values)
+{
+    if (points.size() != values.size())
+    {
+        throw std::invalid_argument("Point and values count are not equal");
+    }
     
-//     double eps = 1.0;
-//     size_t accuracy = 0;
+    double eps = 1.0;
+    size_t accuracy = 0;
     
-//     for (; eps > std::numeric_limits<double>::epsilon(); ++accuracy, eps /= 10)
-//     {
-//         for (size_t i = 0; i < points.size(); ++i)
-//         {
-//             if (std::abs(interpolation.valueAt(points[i]) - values[i]) > eps)
-//             {
-//                 return accuracy - 1;
-//             }
-//         }
-//     }
+    for (; eps > std::numeric_limits<double>::epsilon(); ++accuracy, eps /= 10)
+    {
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            if (std::abs(spline.valueAt(points[i]) - values[i]) > eps)
+            {
+                return accuracy - 1;
+            }
+        }
+    }
     
-//     return accuracy;
-// }
+    return accuracy;
+}
 
 
 int main()
 {
     std::freopen("input.txt", "r", stdin);
     
-    std::vector<double> points = {0,1,2,3,4};
-    std::vector<double> values = {0,1.8415,2.9093,3.1411,3.2432};
+    size_t n;
+    std::cin >> n;
+    
+    std::vector<double> points(n), values(n);
+    double test_point;
+    
+    for (size_t i = 0; i < n; ++i)
+    {
+        std::cin >> points[i] >> values[i];
+    }
+    std::cin >> test_point;
+    
+    try
+    {
+        piecewise_polynomial spline = algorithms::build_spline(points, values);
+        spline.println(std::cout, 6);
+        
+        int accuracy = get_spline_accuracy(spline, points, values);
+        std::cout << "Spline is " << (accuracy != -1
+                ? std::format("verified (accurate to {} decimal places)", accuracy)
+                : "wrong") << std::endl << std::endl;
+        
+        std::cout << std::format("F({}) = {}", test_point, spline.valueAt(test_point)) << std::endl;
+    }
+    catch (std::invalid_argument const &e)
+    {
+        std::cout << e.what() << std::endl;
+    }
+    
     
     piecewise_polynomial spline = algorithms::build_spline(points, values);
     
-    spline.println(std::cout, 6);
+    
 }

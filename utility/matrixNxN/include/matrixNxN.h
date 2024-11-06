@@ -21,12 +21,14 @@ public:
     static matrixNxN identical(size_t dim);
 
 public:
-    void print(std::ostream &stream = std::cout, size_t precision = 3);
-    void println(std::ostream &stream = std::cout, size_t precision = 3);
+    void print(std::ostream &stream = std::cout, size_t precision = 3) const;
+    void println(std::ostream &stream = std::cout, size_t precision = 3) const;
 
 public:
     bool equals(matrixNxN const &other, double eps) const;
     bool is_symmetric(double eps) const;
+    bool is_diagonal(double eps) const;
+    bool is_tridiagonal(double eps) const;
 
 public:
     matrixNxN &operator+=(matrixNxN const &other);

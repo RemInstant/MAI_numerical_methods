@@ -118,7 +118,7 @@ solve_equation_system_with_newton(
         constant_terms[0] = -f1(x1, x2);
         constant_terms[1] = -f2(x1, x2);
         
-        vecN delta = algorithms::solve_linear_equation(coefs, constant_terms);
+        vecN delta = algorithms::solve_linear_equation_system(coefs, constant_terms);
         
         x1 += delta[0];
         x2 += delta[1];

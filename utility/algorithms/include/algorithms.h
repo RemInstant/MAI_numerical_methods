@@ -9,12 +9,11 @@
 
 namespace algorithms
 {
-    // TODO: rename to system
-    std::vector<vecN> solve_linear_equation(
+    std::vector<vecN> solve_linear_equation_system(
         matrixNxN coefs,
         std::vector<vecN> constant_terms);
         
-    vecN solve_linear_equation(
+    vecN solve_linear_equation_system(
         matrixNxN coefs,
         vecN constant_terms);
     

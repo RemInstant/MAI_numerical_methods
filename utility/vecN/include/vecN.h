@@ -17,8 +17,8 @@ public:
     vecN(std::vector<double> const &data);
 
 public:
-    void print(std::ostream &stream = std::cout, size_t precision = 3);
-    void println(std::ostream &stream = std::cout, size_t precision = 3);
+    void print(std::ostream &stream = std::cout, size_t precision = 3) const;
+    void println(std::ostream &stream = std::cout, size_t precision = 3) const;
 
 public:
     bool equals(vecN const &other, double eps) const;

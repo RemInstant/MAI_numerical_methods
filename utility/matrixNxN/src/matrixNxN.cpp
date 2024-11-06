@@ -32,7 +32,7 @@ matrixNxN matrixNxN::identical(size_t dim)
 }
 
 
-void matrixNxN::print(std::ostream &stream, size_t precision)
+void matrixNxN::print(std::ostream &stream, size_t precision) const
 {
     std::vector<size_t> lens(_data.size(), 0);
     
@@ -67,7 +67,7 @@ void matrixNxN::print(std::ostream &stream, size_t precision)
     stream.width(former_width);
 }
 
-void matrixNxN::println(std::ostream &stream, size_t precision)
+void matrixNxN::println(std::ostream &stream, size_t precision) const
 {
     print(stream, precision);
     stream << std::endl;
@@ -99,6 +99,49 @@ bool matrixNxN::is_symmetric(double eps) const
         for (size_t j = 0; j < i; ++j)
         {
             if (std::abs(_data[i][j] - _data[j][i]) > eps)
+            {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+bool matrixNxN::is_diagonal(double eps) const
+{
+    checks::throw_if_invalid_eps(eps);
+    
+    for (size_t i = 0; i < _data.size(); ++i)
+    {
+        for (size_t j = 0; j < _data.size(); ++j)
+        {
+            if (i != j && std::abs(_data[i][j]) > eps)
+            {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+bool matrixNxN::is_tridiagonal(double eps) const
+{
+    checks::throw_if_invalid_eps(eps);
+    
+    for (size_t i = 0; i < _data.size(); ++i)
+    {
+        for (size_t j = 0; i > 0 && j < i - 1; ++j)
+        {
+            if (std::abs(_data[i][j]) > eps)
+            {
+                return false;
+            }
+        }
+        for (size_t j = i + 2; j < _data.size(); ++j)
+        {
+            if (std::abs(_data[i][j]) > eps)
             {
                 return false;
             }

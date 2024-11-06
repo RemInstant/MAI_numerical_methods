@@ -21,8 +21,8 @@ public:
     piecewise_polynomial(double left_bound, double right_bound, polynomial const &poly);
 
 public:
-    void print(std::ostream &stream = std::cout, size_t precision = 3, size_t dot_precision = 3);
-    void println(std::ostream &stream = std::cout, size_t precision = 3, size_t dot_precision = 3);
+    void print(std::ostream &stream = std::cout, size_t precision = 3, size_t dot_precision = 3) const;
+    void println(std::ostream &stream = std::cout, size_t precision = 3, size_t dot_precision = 3) const;
 
 public:
     double operator()(double x) const;

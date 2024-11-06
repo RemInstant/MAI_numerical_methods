@@ -29,7 +29,7 @@ polynomial::polynomial(std::vector<double> const &coefs):
 }
 
 
-void polynomial::print(std::ostream &stream, size_t precision)
+void polynomial::print(std::ostream &stream, size_t precision) const
 {
     std::ios_base::fmtflags former_flags = stream.flags();
     std::streamsize former_precision = stream.precision();
@@ -78,7 +78,7 @@ void polynomial::print(std::ostream &stream, size_t precision)
     stream.precision(former_precision);
 }
 
-void polynomial::println(std::ostream &stream, size_t precision)
+void polynomial::println(std::ostream &stream, size_t precision) const
 {
     print(stream, precision);
     stream << std::endl;
