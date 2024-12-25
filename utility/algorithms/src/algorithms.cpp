@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include <limits>
 #include <algorithm>
+#include <iostream>
+#include <format>
 
 #include "../include/algorithms.h"
 
@@ -167,7 +169,9 @@ vecN algorithms::solve_linear_equation_system(
 
 polynomial algorithms::interpolate_with_lagrange(
     std::vector<double> const &points,
-    std::vector<double> const &values)
+    std::vector<double> const &values,
+    bool trace_flag,
+    size_t trace_precision)
 {
     if (points.size() != values.size())
     {
@@ -198,12 +202,53 @@ polynomial algorithms::interpolate_with_lagrange(
         interpolation += li * values[i];
     }
     
+    if (trace_flag) {
+        std::ios_base::fmtflags former_flags = std::cout.flags();
+        size_t former_precision = std::cout.precision();
+        std::cout.precision(trace_precision);
+        std::cout.setf(std::cout.fixed);
+        
+        std::cout << "TRACE: ";
+        
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            if (i > 0 && values[i] > 0)
+            {
+                std::cout << "+";
+            }
+            
+            double divisor = 1;
+            
+            for (size_t j = 0; j < points.size(); ++j)
+            {
+                divisor *= (i == j) ? 1 : (points[i] - points[j]); 
+            }
+            
+            std::cout << values[i] / divisor;
+            
+            for (size_t j = 0; j < points.size(); ++j)
+            {   
+                if (i == j)
+                {
+                    continue;
+                }
+                std::cout << "(x" << (-points[j] > 0 ? "+" : "") << -points[j] << ")";
+            }
+        }
+        std::cout << std::endl;
+        
+        std::cout.flags(former_flags);
+        std::cout.precision(former_precision);
+    }
+    
     return interpolation;
 }
 
 polynomial algorithms::interpolate_with_newton(
     std::vector<double> const &points,
-    std::vector<double> const &values)
+    std::vector<double> const &values,
+    bool trace_flag,
+    size_t trace_precision)
 {
     if (points.size() != values.size())
     {
@@ -230,6 +275,34 @@ polynomial algorithms::interpolate_with_newton(
     }
     
     polynomial interpolation, mult({1});
+    
+    if (trace_flag) {
+        std::ios_base::fmtflags former_flags = std::cout.flags();
+        size_t former_precision = std::cout.precision();
+        std::cout.precision(trace_precision);
+        std::cout.setf(std::cout.fixed);
+        
+        std::cout << "TRACE: ";
+        
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            if (div_diff[0][i] > 0)
+            {
+                std::cout << "+";
+            }
+            
+            std::cout << div_diff[0][i];
+            
+            for (size_t j = 0; j < i; ++j)
+            {
+                std::cout << "(x" << (-points[j] > 0 ? "+" : "") << -points[j] << ")";
+            }
+        }
+        std::cout << std::endl;
+        
+        std::cout.flags(former_flags);
+        std::cout.precision(former_precision);
+    }
     
     for (size_t i = 0; i < points.size(); ++i)
     {
@@ -311,6 +384,8 @@ piecewise_polynomial algorithms::build_spline(
                 : 2 * h[i] * c[i] / 3);
         double d = ((i + 1 < c.size() ? c[i+1] : 0) - c[i]) / (3 * h[i]);
         
+        std::cout << a << ' ' << b << ' ' << c[i] << ' ' << d << std::endl;
+        
         polynomial p({-pv[i].first, 1});
         polynomial q = polynomial({a}) + p*b + p*p*c[i] + p*p*p*d;
         
@@ -325,4 +400,66 @@ piecewise_polynomial algorithms::build_spline(
     }
     
     return spline;
+}
+
+polynomial algorithms::approximate_with_least_squares_method(
+    std::vector<double> const &points,
+    std::vector<double> const &values,
+    size_t degree)
+{
+    if (points.size() != values.size())
+    {
+        throw std::invalid_argument("Point and values count are not equal");
+    }
+    if (points.size() == 0)
+    {
+        return polynomial();
+    }
+    
+    matrixNxN coefs(degree + 1, 0);
+    vecN constant_terms(degree + 1, 0);
+    std::vector<double> powered_points(points.size(), 1);
+    std::vector<double> powered_right_side(values);
+    
+    for (size_t i = 0; i <= degree; ++i)
+    {
+        for (size_t j = 0; j < points.size(); ++j)
+        {
+            coefs[0][i] += powered_points[j];
+            powered_points[j] *= points[j];
+        }
+    }
+    
+    for (size_t i = 0; i < points.size(); ++i)
+    {
+        constant_terms[0] += powered_right_side[i];
+        powered_right_side[i] *= points[i];
+    }
+    
+    for (size_t k = 1; k <= degree; ++k)
+    {
+        for (size_t i = 0; i < degree; ++i)
+        {
+            coefs[k][i] = coefs[k-1][i+1];
+        }
+        
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            coefs[k][degree] += powered_points[i];
+            powered_points[i] *= points[i];
+            
+            constant_terms[k] += powered_right_side[i];
+            powered_right_side[i] *= points[i];
+        }
+    }
+    
+    vecN roots = solve_linear_equation_system(coefs, constant_terms);
+    std::vector<double> polynomial_coefs(degree + 1);
+    
+    for (size_t i = 0; i <= degree; ++i)
+    {
+        polynomial_coefs[i] = roots[i];
+    }
+    
+    return polynomial(polynomial_coefs);
 }

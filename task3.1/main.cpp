@@ -49,7 +49,7 @@ int main()
     
     try
     {
-        std::cout << "Lagrange interpolation" << std::endl;
+        std::cout << "INTERPOLATION A" << std::endl;
         
         std::vector<double> points =
         {
@@ -58,25 +58,41 @@ int main()
             2.0 / 8 * std::numbers::pi,
             3.0 / 8 * std::numbers::pi,
         };
+
     
         std::vector<double> values(points);
         std::for_each(values.begin(), values.end(), [](double &x){ x = std::tan(x); });
         
-        polynomial interpolation = algorithms::interpolate_with_lagrange(points, values);
-        std::cout << "P(x) = ";
-        interpolation.println();
+        std::cout << "Points : ";
+        std::for_each(points.begin(), points.end(), [](double x){ std::cout << x << ' '; });
+        std::cout << std::endl << "Values : ";
+        std::for_each(values.begin(), values.end(), [](double x){ std::cout << x << ' '; });
+        std::cout << std::endl << std::endl;
         
-        int accuracy = get_interpolation_accuracy(interpolation, points, values);
-        std::cout << "Interpolation is " << (accuracy != -1
-                ? std::format("verified (accurate to {} decimal places)", accuracy)
-                : "wrong") << std::endl;
+        polynomial lagrange_interpolation = algorithms::interpolate_with_lagrange(points, values, true);
+        std::cout << "Lagrange P(x) = ";
+        lagrange_interpolation.println();
         
-        double approx_test_value = interpolation.valueAt(test_point);
+        int lagrange_accuracy = get_interpolation_accuracy(lagrange_interpolation, points, values);
+        std::cout << "Interpolation is " << (lagrange_accuracy != -1
+                ? std::format("verified (accurate to {} decimal places)", lagrange_accuracy)
+                : "wrong") << std::endl << std::endl;
         
-        std::cout << "tan(x*) = " << test_value << std::endl;
-        std::cout << "P(x*)   = " << approx_test_value << std::endl;
-        std::cout << "error   = " << std::abs(test_value - approx_test_value) << std::endl;
-        std::cout << std::endl;
+        polynomial newton_interpolation = algorithms::interpolate_with_newton(points, values, true);
+        std::cout << "Newton P(x) = ";
+        lagrange_interpolation.println();
+        
+        int newton_accuracy = get_interpolation_accuracy(newton_interpolation, points, values);
+        std::cout << "Interpolation is " << (newton_accuracy != -1
+                ? std::format("verified (accurate to {} decimal places)", newton_accuracy)
+                : "wrong") << std::endl << std::endl;
+        
+        double approx_test_value = newton_interpolation.valueAt(test_point);
+        
+        std::cout << "tan(x*)      = " << test_value << std::endl;
+        std::cout << "newton P(x*) = " << approx_test_value << std::endl;
+        std::cout << "error        = " << std::abs(test_value - approx_test_value) << std::endl;
+        std::cout << std::endl << std::endl;
     }
     catch (std::invalid_argument e)
     {
@@ -85,7 +101,7 @@ int main()
     
     try
     {
-        std::cout << "Newton interpolation" << std::endl;
+        std::cout << "INTERPOLATION B" << std::endl;
         
         std::vector<double> points =
         {
@@ -98,20 +114,35 @@ int main()
         std::vector<double> values(points);
         std::for_each(values.begin(), values.end(), [](double &x){ x = std::tan(x); });
         
-        polynomial interpolation = algorithms::interpolate_with_newton(points, values);
-        std::cout << "P(x) = ";
-        interpolation.println();
+        std::cout << "Points : ";
+        std::for_each(points.begin(), points.end(), [](double x){ std::cout << x << ' '; });
+        std::cout << std::endl << "Values : ";
+        std::for_each(values.begin(), values.end(), [](double x){ std::cout << x << ' '; });
+        std::cout << std::endl << std::endl;
         
-        int accuracy = get_interpolation_accuracy(interpolation, points, values);
-        std::cout << "Interpolation is " << (accuracy != -1
-                ? std::format("verified (accurate to {} decimal places)", accuracy)
-                : "wrong") << std::endl;
+        polynomial lagrange_interpolation = algorithms::interpolate_with_lagrange(points, values, true);
+        std::cout << "Lagrange P(x) = ";
+        lagrange_interpolation.println();
         
-        double approx_test_value = interpolation.valueAt(test_point);
+        int lagrange_accuracy = get_interpolation_accuracy(lagrange_interpolation, points, values);
+        std::cout << "Interpolation is " << (lagrange_accuracy != -1
+                ? std::format("verified (accurate to {} decimal places)", lagrange_accuracy)
+                : "wrong") << std::endl << std::endl;
         
-        std::cout << "tan(x*) = " << test_value << std::endl;
-        std::cout << "P(x*)   = " << approx_test_value << std::endl;
-        std::cout << "error   = " << std::abs(test_value - approx_test_value) << std::endl;
+        polynomial newton_interpolation = algorithms::interpolate_with_newton(points, values, true);
+        std::cout << "Newton P(x) = ";
+        lagrange_interpolation.println();
+        
+        int newton_accuracy = get_interpolation_accuracy(newton_interpolation, points, values);
+        std::cout << "Interpolation is " << (newton_accuracy != -1
+                ? std::format("verified (accurate to {} decimal places)", newton_accuracy)
+                : "wrong") << std::endl << std::endl;
+        
+        double approx_test_value = newton_interpolation.valueAt(test_point);
+        
+        std::cout << "tan(x*)      = " << test_value << std::endl;
+        std::cout << "Newton P(x*) = " << approx_test_value << std::endl;
+        std::cout << "error        = " << std::abs(test_value - approx_test_value) << std::endl;
         std::cout << std::endl;
     }
     catch (std::invalid_argument e)
